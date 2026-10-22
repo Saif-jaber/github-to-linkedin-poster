@@ -1,0 +1,43 @@
+name: Daily LinkedIn Post
+
+on:
+  schedule:
+    # 04:00 UTC = 08:00 in the UAE (UTC+4)
+    - cron: '0 4 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: linkedin-poster
+  cancel-in-progress: false
+
+jobs:
+  post:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Generate and send post
+        run: node src/main.js
+        env:
+          GITHUB_USERNAME: Saif-jaber
+          GH_PAT: ${{ secrets.GH_PAT || github.token }}
+          GROQ_API_KEY: ${{ secrets.GROQ_API_KEY }}
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+          HCTI_USER_ID: ${{ secrets.HCTI_USER_ID }}
+          HCTI_API_KEY: ${{ secrets.HCTI_API_KEY }}
+
+      - name: Save history
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add history.json
+          git diff --cached --quiet || (git commit -m "chore: update post history" && git push)
