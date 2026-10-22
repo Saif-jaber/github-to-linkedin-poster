@@ -9,5 +9,16 @@
     "status": "drafted",
     "file": "src/lib.js",
     "post": "I was spending 15 minutes every morning copying code snippets into LinkedIn drafts - until I let a GitHub Action handle it.\n\nThe repo github-to-linkedin-poster runs daily at 08:00 UAE, picks one of my repositories, asks Groq to write a post, renders a highlighted code image, and pushes the draft to Telegram.\n\n-> The workflow pulls raw LLM output and isolates the `POST:` section, trimming whitespace and limiting length to stay within LinkedIn’s character cap.\n-> It extracts the `FILE:` and `LINES:` markers, then reads the source file from the repo’s file map.\n-> To keep images readable, the snippet is capped at 20 lines and excess indentation is stripped before highlighting.\n-> The final HTML/CSS is sent to hcti.io, which returns a PNG that the Telegram bot delivers.\n\nBalancing automation with readability meant adding safety checks - like ignoring empty snippets and enforcing a minimum line count - so every draft looks polished without manual tweaks.\n\nHow do you handle content length limits when generating posts from code automatically?\n\n#GitHubActions #Automation #DeveloperTools #LinkedInMarketing"
+  },
+  {
+    "id": "1792670478499",
+    "date": "2026-10-22",
+    "repo": "SentinelLOLBins",
+    "repo_full_name": "Saif-jaber/SentinelLOLBins",
+    "title": "Comparing XGBoost vs Pretrained Models for LOLBin Detection",
+    "angle": "Explains the technical challenge of selecting and benchmarking machine-learning models to balance detection accuracy and interpretability.",
+    "status": "drafted",
+    "file": "src/train_xgb.py",
+    "post": "Balancing detection accuracy with model interpretability for LOLBin abuse meant I had to compare a classic tree-based classifier against a large pretrained language model.\n\nSentinelLOLBins explores whether a lightweight XGBoost model can match the detection power of SecureBERT while still offering clear feature importance for analysts.\n\nHere is the core of it:\n-> I chose XGBClassifier with 300 trees, max depth 6 and a 0.8 subsample rate to keep the model expressive yet tractable.\n-> The same hyper-parameters are fixed across runs to isolate the effect of data splits rather than tuning noise.\n-> I train on the curated “train” set and validate on a separate “val” split, feeding the validation data to XGBoost’s early-stop-like eval_set mechanism.\n-> After fitting, I evaluate precision, recall and F1 on a held-out test set, then sweep thresholds on the validation probabilities to select a decision point that favors low false-positives.\n\nThe exercise reminded me that a well-engineered baseline can provide comparable security coverage while preserving the transparency needed for incident response.\n\nWhat strategies do you use to keep ML models both performant and explainable in security tooling?\n\n#MachineLearning #CyberSecurity #XGBoost #ModelInterpretability"
   }
 ]
