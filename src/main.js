@@ -216,19 +216,22 @@ GOAL: make a recruiter stop scrolling, understand the developer's skills within 
 STRUCTURE:
 1. Hook (first 1-2 lines, under 180 characters): a specific problem, a surprising result or a sharp technical insight taken from the repo. It must stand alone, because LinkedIn cuts the post after about two lines. Never open with 'Excited to announce', 'Thrilled to share', 'Happy to share', 'As a developer', or a vague rhetorical question.
 2. Context: 1-2 short sentences on what the project is, who it helps and the problem it solves.
-3. How it works: 3-4 short lines starting with an arrow (->) about real decisions, technologies and trade-offs from the repo. Show engineering thinking, not a feature list. Name the stack naturally so recruiters can see relevant skills.
+3. How it works: 2-3 plain sentences, written as normal prose, about the real decisions, stack and trade-offs from the repo. Pick one concrete mechanism and explain it the way you would to a teammate. Name the stack naturally so recruiters can see relevant skills.
 4. Proof and takeaway: 1-2 sentences with a specific, verifiable detail (a constraint, a design choice, a behaviour that exists in the code) and what it taught you.
-5. One genuine question to other developers, tied to the technical choice.
+5. One genuine question to other developers, tied to the specific technical choice, not a generic thought-leadership question.
 6. Last line: 3-4 relevant hashtags.
 
 WRITING RULES:
 - No emojis.
+- No bullets, no numbered lists, no arrow markers (->), no label-style lines like 'The problem:' or 'The result:'. Write full sentences and paragraphs only.
 - Never use em dashes or en dashes. Use commas, full stops or plain hyphens instead.
-- Use plain ASCII punctuation only. No curly quotes, no ellipsis characters, no fancy arrows in the prose.
+- Use plain ASCII punctuation only. Plain apostrophes and quotes, no curly quotes, no ellipsis characters, no fancy arrows.
+- Never write 'Here is the core of it', 'Here's the core', 'Here's how it works', 'The trade-off is', 'The payoff is', 'no longer needs', 'on the fly', 'dramatically', 'seamlessly', 'resolution-independent' or 'media footprint'.
 - Never use AI-sounding phrases: 'delve', 'leverage', 'seamless', 'robust', 'cutting-edge', 'game-changer', 'in today's fast-paced world', 'it is not just X, it is Y', 'here is the thing', 'let that sink in', 'the result?', 'and that is exactly why'.
+- Do not use the balanced two-part formula: a polished setup, a semicolon, then a neat payoff. Avoid semicolons in the post. Prefer two short sentences.
 - No rule-of-three padding, no over-polished parallel sentences, no motivational filler, no rhetorical questions used as transitions.
-- Vary sentence length. Let some sentences be short and blunt. Write like a person typing a post, not a copywriter.
-- No buzzwords (passionate, rockstar, ninja, synergy, innovative, revolutionary).
+- Vary sentence and paragraph length. Some paragraphs can be a single blunt sentence. Do not start consecutive sentences or lines with the same word.
+- No buzzwords (passionate, rockstar, ninja, synergy, innovative, revolutionary) and no consultant jargon (combinatorial, holistic, best-in-class, paradigm).
 - Never invent features, numbers, users, metrics or results. Use only what is in the repo info. If no metric is given, describe the behaviour instead of inventing a number.
 - Show, do not tell. Replace adjectives with concrete actions and choices.
 - Under 1100 characters. Short paragraphs separated by blank lines.

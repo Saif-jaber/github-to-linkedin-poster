@@ -2,6 +2,12 @@
 
 export const esc = s => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
 const dashes = s => String(s).replace(/[\u2010-\u2015]/g, '-');
+const ascii = s => String(s)
+  .replace(/[\u2018\u2019\u201A\u201B]/g, "'")
+  .replace(/[\u201C\u201D\u201E\u201F]/g, '"')
+  .replace(/\u2026/g, '...')
+  .replace(/[\u00A0\u2007\u2009\u200A\u202F]/g, ' ');
+const clean = s => ascii(dashes(s));
 
 // "N | repo name | idea title | angle" lines -> idea objects
 export function parseIdeas(raw, repos) {
@@ -12,7 +18,7 @@ export function parseIdeas(raw, repos) {
     const n = parseInt(p[0].replace(/\D/g, ''), 10);
     const repo = repos.find(r => r.n === n);
     if (!repo || !p[2] || out.some(o => o.option === n)) continue;
-    out.push({ option: n, repo, title: dashes(p[2]), angle: dashes(p[3] || '') });
+    out.push({ option: n, repo, title: clean(p[2]), angle: clean(p[3] || '') });
   }
   if (!out.length) {
     for (const r of repos) {
@@ -29,7 +35,12 @@ export function parsePost(raw, files, repoUrl) {
   const pi = raw.search(/^\s*POST\s*:/mi);
   let post = (pi >= 0 ? raw.slice(pi).replace(/^\s*POST\s*:\s*/i, '') : raw).trim();
   post = post.replace(/\*\*/g, '').replace(/^["\u201C]|["\u201D]$/g, '').trim();
-  post = dashes(post).replace(/[ \t]+$/gm, '');
+  post = clean(post)
+    .replace(/^[ \t]*(?:->|[\u2192\u2794\u27A1])[ \t]*/gm, '')
+    .replace(/^[ \t]*here(?:'s| is) (?:the )?core of it[ \t]*:?[ \t]*$/gim, '')
+    .replace(/[ \t]+$/gm, '')
+    .replace(/\n{3,}/g, '\n\n')
+    .trim();
   if (post.length > 2900) post = post.slice(0, 2900);
 
   const header = pi >= 0 ? raw.slice(0, pi) : '';
