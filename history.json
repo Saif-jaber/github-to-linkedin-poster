@@ -20,5 +20,16 @@
     "status": "drafted",
     "file": "src/train_xgb.py",
     "post": "Balancing detection accuracy with model interpretability for LOLBin abuse meant I had to compare a classic tree-based classifier against a large pretrained language model.\n\nSentinelLOLBins explores whether a lightweight XGBoost model can match the detection power of SecureBERT while still offering clear feature importance for analysts.\n\nHere is the core of it:\n-> I chose XGBClassifier with 300 trees, max depth 6 and a 0.8 subsample rate to keep the model expressive yet tractable.\n-> The same hyper-parameters are fixed across runs to isolate the effect of data splits rather than tuning noise.\n-> I train on the curated “train” set and validate on a separate “val” split, feeding the validation data to XGBoost’s early-stop-like eval_set mechanism.\n-> After fitting, I evaluate precision, recall and F1 on a held-out test set, then sweep thresholds on the validation probabilities to select a decision point that favors low false-positives.\n\nThe exercise reminded me that a well-engineered baseline can provide comparable security coverage while preserving the transparency needed for incident response.\n\nWhat strategies do you use to keep ML models both performant and explainable in security tooling?\n\n#MachineLearning #CyberSecurity #XGBoost #ModelInterpretability"
+  },
+  {
+    "id": "1792746906154",
+    "date": "2026-10-23",
+    "repo": "CHRONOS-STEEL",
+    "repo_full_name": "Saif-jaber/CHRONOS-STEEL",
+    "title": "Generating Watch Sketches with SVG from Measurements",
+    "angle": "Explain how product dimensions are turned into scalable SVG illustrations without photos, highlighting the algorithm and rendering pipeline.",
+    "status": "drafted",
+    "file": "src/app/render-audit/page.tsx",
+    "post": "Turning millimetre-level case specs into vector watch sketches eliminated any reliance on product photos.\n\nChronos & Steel is a Next.js storefront that displays each watch as an SVG generated directly from its measurements. The goal was to keep the visual catalogue lightweight while staying true to the engineering data.\n\nHere is the core of it:\n```tsx\n{PRODUCTS.map((product) => {\n  const variants = buildVariants(product);\n  const shown = variants.slice(0, 4);\n  return (\n    <section key={product.id} className=\"flex flex-col gap-4\">\n      <h2 className=\"text-sm\">\n        {product.model} · {product.caseSpec.diameterMm}mm / {product.caseSpec.bezel} / {variants.length} variants\n      </h2>\n      {([\"card\", \"full\"] as const).map((detail) => (\n```\n\n-> Store dimensions (diameter, bezel, dial, strap) in the product record.\n-> `buildVariants` enumerates every legal combination, then `<WatchRender>` receives the selected specs and builds SVG paths on the fly.\n-> The page uses `dynamic = \"force-static\"` so the SVGs are pre-rendered at build time, delivering instant load and perfect scalability.\n-> Skipping raster images keeps the bundle small and the illustrations crisp at any zoom level.\n\nGenerating graphics from source data keeps the visual layer in lockstep with the database and removes an entire photo-handling pipeline.\n\nWhat data-driven SVG pipelines have you built for product visualisation, and what trade-offs did you encounter?\n\n#TypeScript #NextJS #SVG #ProductDesign"
   }
 ]
