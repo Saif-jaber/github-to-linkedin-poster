@@ -18,11 +18,11 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v7
         with:
-          node-version: 20
+          node-version: 24
 
       - name: Generate and send post
         run: node src/main.js
@@ -39,5 +39,17 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          cp history.json "$RUNNER_TEMP/history.local.json"
+          git fetch origin "$GITHUB_REF_NAME"
+          git reset --hard "origin/$GITHUB_REF_NAME"
+          node -e '
+            const fs = require("fs");
+            const local = JSON.parse(fs.readFileSync(process.env.RUNNER_TEMP + "/history.local.json", "utf8"));
+            const remote = JSON.parse(fs.readFileSync("history.json", "utf8"));
+            const rows = new Map(remote.map(r => [r.id, r]));
+            for (const r of local) rows.set(r.id, r);
+            const merged = [...rows.values()].sort((a, b) => String(a.id).localeCompare(String(b.id)));
+            fs.writeFileSync("history.json", JSON.stringify(merged, null, 2) + "\n");
+          '
           git add history.json
           git diff --cached --quiet || (git commit -m "chore: update post history" && git push)
