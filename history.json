@@ -42,5 +42,16 @@
     "status": "drafted",
     "file": "Gradex/server/controllers/courseController.js",
     "post": "When I let a single state slice drive the GPA chart, the UI refreshed in under 100 ms after each course entry.\n\nGradex is a self-hosted GPA tracker that lets students add courses, set grades and see semester and cumulative GPA update instantly. It runs on a Vite-React front end styled with Tailwind and talks to an Express API backed by PostgreSQL.\n\nThe front end stores courses in a React context and recomputes the weighted average on every change, while the API validates each update. In the controller I first check that the incoming status is one of the four allowed values, then run a single SQL statement that joins courses with semesters to enforce user ownership before writing the new status and grade.\n\nIf a client sends an unknown status the endpoint returns a 400 error, which prevented any corrupt data from reaching the chart. This pattern taught me the value of keeping validation close to the data layer and of coupling it with an ownership check in one query.\n\nHow do you balance optimistic UI updates with server-side validation when the latency is low but not negligible?\n\n#React #TailwindCSS #NodeJS #PostgreSQL #FullStack"
+  },
+  {
+    "id": "1792831672799",
+    "date": "2026-10-24",
+    "repo": "Cortex",
+    "repo_full_name": "Saif-jaber/Cortex",
+    "title": "Building Semantic Search with OpenAI Embeddings",
+    "angle": "Discuss how you integrated vector embeddings into the MERN stack to enable context-aware document retrieval.",
+    "status": "drafted",
+    "file": "src/Backend/controllers/fileController.js",
+    "post": "I turned a 50 MB PDF upload into a searchable knowledge chunk in under a second.\n\nCortex is a self-hosted knowledge base where users drop PDFs, Word or PowerPoint files and then chat with an AI that only knows their own documents.\n\nWhen a file is posted, the front-end calls /getUploadUrl. The controller validates type and size, builds a random hex key, and uses the AWS S3 client to create a presigned PUT URL that points at Cloudflare R2. After the client uploads the binary, a background job reads the file, splits it into chunks, sends each chunk to OpenAI's embedding endpoint and stores the vectors in MongoDB. A query later runs a cosine similarity lookup against those vectors and returns the most relevant passages.\n\nThe snippet shows the exact validation and signed-URL generation that protects the pipeline from unnecessary processing. It reminded me that early input checks save both bandwidth and compute when dealing with large documents.\n\nIf you were to replace the random hex key with a UUID, would that simplify deduplication across multiple users, or add unnecessary overhead?\n\n#NodeJS #React #OpenAI #MongoDB #VectorSearch"
   }
 ]
