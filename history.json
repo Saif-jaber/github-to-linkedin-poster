@@ -53,5 +53,16 @@
     "status": "drafted",
     "file": "src/Backend/controllers/fileController.js",
     "post": "I turned a 50 MB PDF upload into a searchable knowledge chunk in under a second.\n\nCortex is a self-hosted knowledge base where users drop PDFs, Word or PowerPoint files and then chat with an AI that only knows their own documents.\n\nWhen a file is posted, the front-end calls /getUploadUrl. The controller validates type and size, builds a random hex key, and uses the AWS S3 client to create a presigned PUT URL that points at Cloudflare R2. After the client uploads the binary, a background job reads the file, splits it into chunks, sends each chunk to OpenAI's embedding endpoint and stores the vectors in MongoDB. A query later runs a cosine similarity lookup against those vectors and returns the most relevant passages.\n\nThe snippet shows the exact validation and signed-URL generation that protects the pipeline from unnecessary processing. It reminded me that early input checks save both bandwidth and compute when dealing with large documents.\n\nIf you were to replace the random hex key with a UUID, would that simplify deduplication across multiple users, or add unnecessary overhead?\n\n#NodeJS #React #OpenAI #MongoDB #VectorSearch"
+  },
+  {
+    "id": "1792919051073",
+    "date": "2026-10-25",
+    "repo": "logicCV",
+    "repo_full_name": "Saif-jaber/logicCV",
+    "title": "Chat-Driven CV Generation Architecture Explained",
+    "angle": "Walk through how Next.js, React, and Tailwind combine to deliver a real-time AI-powered resume builder.",
+    "status": "drafted",
+    "file": "app/actions/documents.ts",
+    "post": "A single Next.js server action writes the AI-generated resume to Postgres the moment the user sends a new bullet point.\n\nlogicCV lets anyone build an ATS-friendly CV by chatting with an LLM. The chat UI lives in React, styled with Tailwind, while the backend runs as a server action in Next.js 16.\n\nThe `saveResumeAction` receives the document ID, a title and the typed resume object, calls `requireUserId` to pull the session from the auth layer, then issues one `prisma.resume.updateMany` call scoped to that user. Using TypeScript ensures the payload matches the `Resume` type and the JSON schema the AI returns.\n\nIn practice the action completes in under 200 ms on the edge runtime, which taught me that keeping the write path single-step and session-aware avoids race conditions and extra round trips.\n\nHow do you handle session validation inside server actions when you need to support both edge and node runtimes?\n\n#Nextjs #React #TypeScript #Tailwind #Prisma"
   }
 ]
