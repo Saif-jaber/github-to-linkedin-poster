@@ -64,5 +64,16 @@
     "status": "drafted",
     "file": "app/actions/documents.ts",
     "post": "A single Next.js server action writes the AI-generated resume to Postgres the moment the user sends a new bullet point.\n\nlogicCV lets anyone build an ATS-friendly CV by chatting with an LLM. The chat UI lives in React, styled with Tailwind, while the backend runs as a server action in Next.js 16.\n\nThe `saveResumeAction` receives the document ID, a title and the typed resume object, calls `requireUserId` to pull the session from the auth layer, then issues one `prisma.resume.updateMany` call scoped to that user. Using TypeScript ensures the payload matches the `Resume` type and the JSON schema the AI returns.\n\nIn practice the action completes in under 200 ms on the edge runtime, which taught me that keeping the write path single-step and session-aware avoids race conditions and extra round trips.\n\nHow do you handle session validation inside server actions when you need to support both edge and node runtimes?\n\n#Nextjs #React #TypeScript #Tailwind #Prisma"
+  },
+  {
+    "id": "1793008737836",
+    "date": "2026-10-26",
+    "repo": "github-to-linkedin-poster",
+    "repo_full_name": "Saif-jaber/github-to-linkedin-poster",
+    "title": "Designing Self-Updating LinkedIn Drafts via GitHub Actions",
+    "angle": "Explain how I chained Groq LLM, code-snippet rendering, and Telegram notifications into a fully automated daily posting pipeline.",
+    "status": "drafted",
+    "file": "src/main.js",
+    "post": "My GitHub Action now writes a LinkedIn post, renders a syntax-highlighted snippet, and pushes it to Telegram before my morning coffee.\n\nThe repo wires together a daily cron, Groq's LLM for copy, hcti.io for image rendering and a Telegram bot for delivery. It lets any private repo surface a fresh idea every day without manual effort.\n\nIn the entry file I import the pure helpers from lib.js, resolve the project root, and point to a history.json that records the last idea. The action reads recent repos, asks Groq for a headline and body, then feeds the generated HTML to hcti.io which returns a PNG of the highlighted code. Finally the image and text are posted via Telegram's sendMessage API.\n\nThe workflow commits the updated history.json after each run, guaranteeing that the same repository isn't promoted twice in a row. It also caps the code snippet to 20 lines to keep the image readable.\n\nHow do you handle API rate-limit back-off when chaining multiple external services in a GitHub Action?\n\n#GitHubActions #LLM #Automation #NodeJS"
   }
 ]
