@@ -15,7 +15,7 @@ const CFG = {
   daysBack: Number(process.env.DAYS_BACK || 60),
   groqModel: process.env.GROQ_MODEL || 'openai/gpt-oss-120b',
   dryRun: process.env.DRY_RUN === '1',
-  newsRatio: Number(process.env.NEWS_RATIO || 0.4), // chance to post news vs repo
+  newsRatio: Number(process.env.NEWS_RATIO || 0.45), // chance to post news vs repo
   newsTopics: (process.env.NEWS_TOPICS || 'web development, frontend, backend, AI, machine learning, LLMs, agentic AI, TypeScript, React, Next.js, Rust, AI tooling').split(',').map(s => s.trim()),
 };
 
