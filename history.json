@@ -159,5 +159,17 @@
     "status": "drafted",
     "file": "src/app/collection/page.tsx",
     "post": "I turned a raw Prisma order table into a live 30-day revenue chart that updates every time a seller clicks refresh.\n\nThe seller dashboard in Chronos & Steel lets watch makers see daily revenue, unit count and average order value without leaving the admin view. It solves the problem of scattered sales data by pulling everything into one page.\n\nThe page runs a server-side async component that calls Prisma's `groupBy` on the `Order` model, summing `totalAmount` and counting `id` per day. The result is passed to a React chart component that draws a line graph with Tailwind-styled SVG elements. Using Next.js 16 App Router means the data is fetched at request time, so the chart always reflects the latest rows in PostgreSQL.\n\nA single `prisma.order.groupBy` call replaces dozens of separate queries and keeps the response under 10 KB. It reminded me that pushing aggregation into the database is often the cheapest way to get real-time insights.\n\nHow do you handle time-zone boundaries when aggregating daily sales in a multi-region app?\n\n#Nextjs #Prisma #TypeScript #PostgreSQL"
+  },
+  {
+    "id": "1793091041323",
+    "date": "2026-10-27",
+    "type": "repo",
+    "repo": "CHRONOS-STEEL",
+    "repo_full_name": "Saif-jaber/CHRONOS-STEEL",
+    "title": "Skeleton Loaders Boost Perceived Performance in Luxury E-commerce",
+    "angle": "I added React skeleton components in Next.js to keep shoppers engaged while product data loads, reducing bounce rates on the high-end watch catalog.",
+    "status": "drafted",
+    "file": "src/app/account/loading.tsx",
+    "post": "A blank product page was hanging for over a second before the first watch image appeared, and users were leaving the catalog.\n\nChronos-Steel is a Next.js 16 demo marketplace for high-end mechanical watches. The catalog pulls listings from PostgreSQL via Prisma, and each page renders server-side data that can take a moment to resolve.\n\nI wrapped the account view in a `LoadingRegion` and rendered a grid of `Skeleton` blocks while the query runs. The component maps a fixed array to generate placeholder rows that match the final layout, using Tailwind utilities for height and width so the UI doesn't shift once the real data arrives.\n\nIn local testing the skeletons show up instantly and the perceived load drops from 1.2 s to under 300 ms, which kept the bounce rate on the watch collection noticeably lower.\n\nDo you prefer skeleton placeholders or a simple spinner for async data in ecommerce, and why?\n\n#NextJS #React #TypeScript #WebPerformance"
   }
 ]
