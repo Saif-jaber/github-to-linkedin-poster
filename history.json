@@ -87,5 +87,17 @@
     "status": "drafted",
     "file": "src/error_analysis.py",
     "post": "I turned raw XGBoost scores and Sigma rule matches into a single one-line alert that tells analysts why it fired.\n\nSentinelLOLBins combines transparent Sigma-style detections with a gradient-boosted model to flag suspicious LOLBin usage. The goal is to give security teams a clear reason for each alert instead of a flood of raw scores.\n\nThe script loads the trained XGBoost model, computes a probability for each test record, and builds a DataFrame that includes the original Sigma rule evidence. It then classifies the outcome as TP, FP, FN or TN in three vectorised assignments. The final alert string pulls the probability, process name, parent and the matched rule, so an analyst sees \"prob=0.92 proc=certutil parent=cmd.exe rule=SuspiciousExecution\".\n\nRunning the error analysis on the 100 k sample produced a CSV where the top false positive had a 0.94 probability yet matched a benign command template, confirming that probability alone is not enough without rule context.\n\nDo you prefer ranking mixed alerts by probability, by rule severity, or by a composite score when presenting them to SOC analysts?\n\n#Cybersecurity #MachineLearning #Python #SOC"
+  },
+  {
+    "id": "1793090044995",
+    "date": "2026-10-27",
+    "type": "repo",
+    "repo": "CHRONOS-STEEL",
+    "repo_full_name": "Saif-jaber/CHRONOS-STEEL",
+    "title": "Server-Side Filtering with URL-Driven Facets",
+    "angle": "How I built shareable, SEO-friendly product filters using Next.js SSR and Prisma.",
+    "status": "drafted",
+    "file": "src/app/collection/page.tsx",
+    "post": "I turned URL query strings into live facet counts that stay shareable and SEO-friendly without any client-side state.\n\nChronos & Steel is a demo marketplace for mechanical watches built with Next.js 16, TypeScript, Prisma and PostgreSQL. The collection page lets users filter by brand, price, case size and more, and the filter state lives entirely in the URL.\n\nThe page receives the raw searchParams promise, converts it to a URLSearchParams object, then parseFilters builds a typed FilterState. applyFilters runs that state against the full product list fetched with Prisma, while hrefFor generates clean links for each facet option. Because the whole pipeline runs in the server-rendered component, the HTML already contains the correct counts and selected filters when the browser receives it.\n\nIn the repo you can see the server-side flow from lines 45-58, where the filter state is derived, products are loaded, facets are grouped and the filtered results are rendered. It taught me that moving the entire facet logic to the server removes a lot of hydration complexity and keeps the URLs crawlable.\n\nHow do you handle the balance between server-side facet generation and client-side interactivity when the filter set grows large?\n\n#Nextjs #TypeScript #Prisma #SSR #WebDev"
   }
 ]
