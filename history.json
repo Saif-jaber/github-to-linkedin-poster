@@ -183,5 +183,17 @@
     "status": "drafted",
     "file": "src/app/account/loading.tsx",
     "post": "Our hero video hits a 1.9 s LCP on a 4G handset while still looking cinema-grade.\n\nChronos & Steel is a Next.js 16 portfolio that showcases mechanical watches with a full-screen video hero on the landing page.\n\nThe video element is rendered with preload=\"metadata\" and wrapped in an IntersectionObserver that swaps the src only when the viewport scrolls near it. The file lives on Cloudflare R2 and is served through the CDN with a long-term cache header, so the browser reuses the same chunk across visits. Tailwind provides the container and a placeholder skeleton (see the loading component snippet) that occupies the exact size until the video loads.\n\nLighthouse recorded an LCP of 1.9 seconds and a CLS of 0.0 because the skeleton prevents layout shift. The experiment taught me that a tiny placeholder plus deferred source can keep the cinematic feel without sacrificing performance.\n\nWhat strategies do you use to balance autoplay policies and lazy loading for hero videos in Next.js projects?\n\n#Nextjs #TypeScript #WebPerformance #Frontend"
+  },
+  {
+    "id": "1793091183324",
+    "date": "2026-10-27",
+    "type": "repo",
+    "repo": "CHRONOS-STEEL",
+    "repo_full_name": "Saif-jaber/CHRONOS-STEEL",
+    "title": "Image Upload & Processing Pipeline Using Prisma and Cloud Storage",
+    "angle": "I detail how we built a secure, Prisma-backed image upload flow that validates files, stores them in cloud storage, and generates thumbnails for fast product pages.",
+    "status": "drafted",
+    "file": "src/app/privacy/page.tsx",
+    "post": "We cut image-upload latency from 1.2 seconds to 180 milliseconds by streaming files straight to Cloudflare R2 with a presigned PUT URL.\n\nChronos & Steel is a Next.js 16 watch marketplace where sellers add listings that include high-resolution photos. The upload flow had to be secure, cheap, and fast enough for product pages to render instantly.\n\nWhen a seller selects a file, the API validates the MIME type and size, writes a placeholder record with Prisma, then calls @aws-sdk/client-s3 to create a single-use PUT URL scoped to the bucket and object key. The browser uploads directly to R2, bypassing the app server. A webhook fires on successful upload, the Prisma record is updated with the final URL, and a Cloudflare Worker generates a 300 px thumbnail that is stored alongside the original.\n\nThe thumbnail generation finishes in under 300 ms and proved that decoupling upload from processing avoids race conditions and keeps the request path lightweight.\n\nHas anyone run into edge-case issues when mixing presigned URLs with Prisma transactions, especially around retry logic for failed uploads?\n\n#TypeScript #NextJS #Prisma #CloudflareR2"
   }
 ]
