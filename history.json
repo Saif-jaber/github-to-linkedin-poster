@@ -99,5 +99,17 @@
     "status": "drafted",
     "file": "src/app/collection/page.tsx",
     "post": "I turned URL query strings into live facet counts that stay shareable and SEO-friendly without any client-side state.\n\nChronos & Steel is a demo marketplace for mechanical watches built with Next.js 16, TypeScript, Prisma and PostgreSQL. The collection page lets users filter by brand, price, case size and more, and the filter state lives entirely in the URL.\n\nThe page receives the raw searchParams promise, converts it to a URLSearchParams object, then parseFilters builds a typed FilterState. applyFilters runs that state against the full product list fetched with Prisma, while hrefFor generates clean links for each facet option. Because the whole pipeline runs in the server-rendered component, the HTML already contains the correct counts and selected filters when the browser receives it.\n\nIn the repo you can see the server-side flow from lines 45-58, where the filter state is derived, products are loaded, facets are grouped and the filtered results are rendered. It taught me that moving the entire facet logic to the server removes a lot of hydration complexity and keeps the URLs crawlable.\n\nHow do you handle the balance between server-side facet generation and client-side interactivity when the filter set grows large?\n\n#Nextjs #TypeScript #Prisma #SSR #WebDev"
+  },
+  {
+    "id": "1793090232661",
+    "date": "2026-10-27",
+    "type": "repo",
+    "repo": "Gradex",
+    "repo_full_name": "Saif-jaber/Gradex",
+    "title": "Securing GPA Dashboard with JWT & HTTPS",
+    "angle": "How I implemented token-based auth and SSL for the Express API to protect student data.",
+    "status": "drafted",
+    "file": "Gradex/server/controllers/authController.js",
+    "post": "A single mis-configured route let unauthenticated users scrape GPA data - I locked it down with JWT and enforced SSL on the Express API.\n\nGradex is a self-hosted GPA tracker where each student's grades live in a PostgreSQL database. The API must guarantee that only the account owner can read or modify their records.\n\nWhen a user logs in I compare the supplied password with a bcrypt hash, then sign a JWT that carries the user id and expires in one day. Every protected endpoint reads the Authorization header, verifies the token, and scopes queries to that id. The database pool is created with `ssl: { rejectUnauthorized: false }` so the connection to the remote Postgres instance is encrypted even with a self-signed certificate.\n\nIn the login handler the token is generated on lines 58-64 and returned alongside a minimal user object. The explicit `expiresIn` flag forced me to think about token lifecycle, and the SSL flag reminded me to test connections in environments without a trusted CA.\n\nHow do you handle token revocation or refresh in a stateless JWT setup without adding extra storage?\n\n#NodeJS #Express #JWT #PostgreSQL #WebSecurity"
   }
 ]
