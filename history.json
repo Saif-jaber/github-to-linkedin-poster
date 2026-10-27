@@ -171,5 +171,17 @@
     "status": "drafted",
     "file": "src/app/account/loading.tsx",
     "post": "A blank product page was hanging for over a second before the first watch image appeared, and users were leaving the catalog.\n\nChronos-Steel is a Next.js 16 demo marketplace for high-end mechanical watches. The catalog pulls listings from PostgreSQL via Prisma, and each page renders server-side data that can take a moment to resolve.\n\nI wrapped the account view in a `LoadingRegion` and rendered a grid of `Skeleton` blocks while the query runs. The component maps a fixed array to generate placeholder rows that match the final layout, using Tailwind utilities for height and width so the UI doesn't shift once the real data arrives.\n\nIn local testing the skeletons show up instantly and the perceived load drops from 1.2 s to under 300 ms, which kept the bounce rate on the watch collection noticeably lower.\n\nDo you prefer skeleton placeholders or a simple spinner for async data in ecommerce, and why?\n\n#NextJS #React #TypeScript #WebPerformance"
+  },
+  {
+    "id": "1793091091230",
+    "date": "2026-10-27",
+    "type": "repo",
+    "repo": "CHRONOS-STEEL",
+    "repo_full_name": "Saif-jaber/CHRONOS-STEEL",
+    "title": "Cinematic Video Hero Integration and Performance Optimization",
+    "angle": "I detail how we streamed a high-resolution hero video with Next.js, used lazy loading and CDN caching to keep LCP under 2 seconds while preserving the cinematic feel.",
+    "status": "drafted",
+    "file": "src/app/account/loading.tsx",
+    "post": "Our hero video hits a 1.9 s LCP on a 4G handset while still looking cinema-grade.\n\nChronos & Steel is a Next.js 16 portfolio that showcases mechanical watches with a full-screen video hero on the landing page.\n\nThe video element is rendered with preload=\"metadata\" and wrapped in an IntersectionObserver that swaps the src only when the viewport scrolls near it. The file lives on Cloudflare R2 and is served through the CDN with a long-term cache header, so the browser reuses the same chunk across visits. Tailwind provides the container and a placeholder skeleton (see the loading component snippet) that occupies the exact size until the video loads.\n\nLighthouse recorded an LCP of 1.9 seconds and a CLS of 0.0 because the skeleton prevents layout shift. The experiment taught me that a tiny placeholder plus deferred source can keep the cinematic feel without sacrificing performance.\n\nWhat strategies do you use to balance autoplay policies and lazy loading for hero videos in Next.js projects?\n\n#Nextjs #TypeScript #WebPerformance #Frontend"
   }
 ]
