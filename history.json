@@ -75,5 +75,17 @@
     "status": "drafted",
     "file": "src/main.js",
     "post": "My GitHub Action now writes a LinkedIn post, renders a syntax-highlighted snippet, and pushes it to Telegram before my morning coffee.\n\nThe repo wires together a daily cron, Groq's LLM for copy, hcti.io for image rendering and a Telegram bot for delivery. It lets any private repo surface a fresh idea every day without manual effort.\n\nIn the entry file I import the pure helpers from lib.js, resolve the project root, and point to a history.json that records the last idea. The action reads recent repos, asks Groq for a headline and body, then feeds the generated HTML to hcti.io which returns a PNG of the highlighted code. Finally the image and text are posted via Telegram's sendMessage API.\n\nThe workflow commits the updated history.json after each run, guaranteeing that the same repository isn't promoted twice in a row. It also caps the code snippet to 20 lines to keep the image readable.\n\nHow do you handle API rate-limit back-off when chaining multiple external services in a GitHub Action?\n\n#GitHubActions #LLM #Automation #NodeJS"
+  },
+  {
+    "id": "1793089976432",
+    "date": "2026-10-27",
+    "type": "repo",
+    "repo": "SentinelLOLBins",
+    "repo_full_name": "Saif-jaber/SentinelLOLBins",
+    "title": "Crafting Interpretable Alerts for LOLBin Abuse Detection",
+    "angle": "Explain how I integrated Sigma-style rule outputs with XGBoost probabilities to produce concise, analyst-friendly alerts and reduce alert fatigue.",
+    "status": "drafted",
+    "file": "src/error_analysis.py",
+    "post": "I turned raw XGBoost scores and Sigma rule matches into a single one-line alert that tells analysts why it fired.\n\nSentinelLOLBins combines transparent Sigma-style detections with a gradient-boosted model to flag suspicious LOLBin usage. The goal is to give security teams a clear reason for each alert instead of a flood of raw scores.\n\nThe script loads the trained XGBoost model, computes a probability for each test record, and builds a DataFrame that includes the original Sigma rule evidence. It then classifies the outcome as TP, FP, FN or TN in three vectorised assignments. The final alert string pulls the probability, process name, parent and the matched rule, so an analyst sees \"prob=0.92 proc=certutil parent=cmd.exe rule=SuspiciousExecution\".\n\nRunning the error analysis on the 100 k sample produced a CSV where the top false positive had a 0.94 probability yet matched a benign command template, confirming that probability alone is not enough without rule context.\n\nDo you prefer ranking mixed alerts by probability, by rule severity, or by a composite score when presenting them to SOC analysts?\n\n#Cybersecurity #MachineLearning #Python #SOC"
   }
 ]
