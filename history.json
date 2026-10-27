@@ -135,5 +135,17 @@
     "status": "drafted",
     "file": "app/dashboard/resumes/page.tsx",
     "post": "On a 5-inch phone the AI chat bubbles were clipping, so I rewrote the flex layout to keep every line readable.\n\nlogicCV lets users build ATS-friendly resumes by chatting with an LLM. The chat sits beside a live preview, and the whole UI runs in a Next 16 app built with React 19, TypeScript and Tailwind CSS v4.\n\nThe header uses a responsive flex container: `flex flex-wrap items-end justify-between gap-3`. I added `flex-wrap` and adjusted padding (`p-4 sm:p-6 lg:p-8`) so the suggestion row and AI bubbles stay inside the viewport on small screens. Tailwind's breakpoint utilities let the layout collapse gracefully without extra media queries.\n\nAfter the change the suggestion row no longer overflows and bubbles stay fully visible, even when the user scrolls quickly. It reminded me to test UI components on the smallest breakpoint early in development.\n\nHow do you handle dynamic height content in a flex container on mobile without causing overflow?\n\n#NextJS #React #TypeScript #TailwindCSS"
+  },
+  {
+    "id": "1793090807572",
+    "date": "2026-10-27",
+    "type": "repo",
+    "repo": "github-to-linkedin-poster",
+    "repo_full_name": "Saif-jaber/github-to-linkedin-poster",
+    "title": "LLM Prompt Tuning for Consistent Post Quality",
+    "angle": "How I refined Groq prompts to avoid generic LinkedIn drafts and keep the tone brand-aligned.",
+    "status": "drafted",
+    "file": "src/main.js",
+    "post": "After three failed Groq calls, my prompt now forces the model to write LinkedIn posts that sound like my personal brand, not a generic AI.\n\nThe repo is a GitHub Action that runs each morning, picks one of my repos, asks Groq for a post, renders a code-snippet image and pushes both to a Telegram bot.\n\nThe core is the `groq` helper. It builds a request with a system message that encodes my brand voice and a user message containing the repo idea. I set temperature to 0.7 and wrap the call in a three-attempt retry loop, pausing longer after each failure. This simple structure lets me experiment with prompt wording without changing the surrounding workflow.\n\nWith a concise system prompt that forbids phrases like \"Excited to announce\", the generated drafts stopped using those clichés and kept the tone I prefer. It taught me that a well-scoped system prompt can outweigh many downstream filters.\n\nDo you embed brand guidelines directly in the system prompt, or do you prefer to clean up the output afterward?\n\n#JavaScript #LLM #PromptEngineering #GitHubActions"
   }
 ]
