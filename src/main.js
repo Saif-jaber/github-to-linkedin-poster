@@ -207,9 +207,21 @@ async function pickNewsIdea(history) {
 async function pickIdea(history) {
   const repos = await ghJson(`https://api.github.com/users/${CFG.githubUser}/repos?per_page=100&sort=pushed`);
   const cutoff = Date.now() - CFG.daysBack * 86400000;
-  let candidates = repos.filter(r => !r.fork && !r.archived && new Date(r.pushed_at).getTime() > cutoff).slice(0, CFG.maxRepos);
-  if (!candidates.length) candidates = repos.filter(r => !r.fork && !r.archived).slice(0, CFG.maxRepos);
-  if (!candidates.length) throw new Error(`No usable repos found for ${CFG.githubUser}`);
+  let candidates = repos.filter(r => {
+    if (r.fork || r.archived) return false;
+    if (r.name === 'github-to-linkedin-poster') return false;
+    if (r.full_name === `${CFG.githubUser}/github-to-linkedin-poster`) return false;
+    return new Date(r.pushed_at).getTime() > cutoff;
+  }).slice(0, CFG.maxRepos);
+  if (!candidates.length) {
+    candidates = repos.filter(r => {
+      if (r.fork || r.archived) return false;
+      if (r.name === 'github-to-linkedin-poster') return false;
+      if (r.full_name === `${CFG.githubUser}/github-to-linkedin-poster`) return false;
+      return true;
+    }).slice(0, CFG.maxRepos);
+  }
+  if (!candidates.length) throw new Error(`No usable repos found for ${CFG.githubUser} (excluding github-to-linkedin-poster)`);
 
   const lastDrafted = {}, titles = {};
   for (const r of history) {
