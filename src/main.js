@@ -434,7 +434,28 @@ async function main() {
     result = parsePost(raw, material.files, idea.repo.url);
   }
 
-  console.log(`Post length: ${result.post.length} chars | code image: ${result.hasImage}`);
+  // Ensure repo posts try to have an image
+  if (idea.type !== 'news' && !result.hasImage && material.files) {
+    try {
+      // pick first file with content
+      const entries = Object.entries(material.files);
+      if (entries.length) {
+        const [fname, lines] = entries[0];
+        const snippet = lines.slice(0, 12).map(l => l.replace(/\t/g, '  '));
+        if (snippet.length >= 3) {
+          // rebuild minimal result
+          const { esc, clean } = await import('./lib.js');
+          // quick hack: call parsePost again with adjusted? easier to just set
+          // but parsePost needs header; simulate
+          const fakeRaw = `FILE: ${fname}\nLINES: 1-${snippet.length}\nPOST:\n${result.post}`;
+          const fixed = (await import('./lib.js')).parsePost(fakeRaw, material.files, idea.repo?.url || '');
+          if (fixed.hasImage) result = fixed;
+        }
+      }
+    } catch {}
+  }
+
+  console.log(`Post length: ${result.post.length} chars | code image: ${result.hasImage} | type: ${idea.type || 'repo'}`);
 
   if (CFG.dryRun) {
     console.log('\n--- DRY RUN (nothing sent) ---\n');
