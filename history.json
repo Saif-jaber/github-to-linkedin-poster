@@ -195,5 +195,17 @@
     "status": "drafted",
     "file": "src/app/privacy/page.tsx",
     "post": "We cut image-upload latency from 1.2 seconds to 180 milliseconds by streaming files straight to Cloudflare R2 with a presigned PUT URL.\n\nChronos & Steel is a Next.js 16 watch marketplace where sellers add listings that include high-resolution photos. The upload flow had to be secure, cheap, and fast enough for product pages to render instantly.\n\nWhen a seller selects a file, the API validates the MIME type and size, writes a placeholder record with Prisma, then calls @aws-sdk/client-s3 to create a single-use PUT URL scoped to the bucket and object key. The browser uploads directly to R2, bypassing the app server. A webhook fires on successful upload, the Prisma record is updated with the final URL, and a Cloudflare Worker generates a 300 px thumbnail that is stored alongside the original.\n\nThe thumbnail generation finishes in under 300 ms and proved that decoupling upload from processing avoids race conditions and keeps the request path lightweight.\n\nHas anyone run into edge-case issues when mixing presigned URLs with Prisma transactions, especially around retry logic for failed uploads?\n\n#TypeScript #NextJS #Prisma #CloudflareR2"
+  },
+  {
+    "id": "1793091551818",
+    "date": "2026-10-27",
+    "type": "repo",
+    "repo": "CHRONOS-STEEL",
+    "repo_full_name": "Saif-jaber/CHRONOS-STEEL",
+    "title": "Real-time Stock Management with Stripe Checkout",
+    "angle": "How we integrated Stripe payments and instantly decremented inventory to keep product counts accurate in a luxury watch demo store.",
+    "status": "drafted",
+    "file": "src/app/bag/loading.tsx",
+    "post": "We drop a watch's stock count the instant Stripe confirms payment, so the catalog never shows a sold-out piece as available.\n\nChronos & Steel is a demo marketplace for luxury mechanical watches. It needed a way to keep inventory accurate the moment a buyer completes checkout.\n\nWhen Stripe sends a checkout.session.completed webhook we verify the signature, then run a Prisma transaction that reads the current stock with a SELECT FOR UPDATE, decrements the quantity, and writes the new value. The whole flow lives in a Next.js API route written in TypeScript and backed by PostgreSQL, so the row-level lock prevents two payments from reducing the same item below zero.\n\nIn a load test with ten concurrent simulated purchases the stock never went negative and each order was recorded exactly once. The experiment reinforced that database-level locking and idempotent webhook handling are non-negotiable for real-time inventory.\n\nHow do you design webhook idempotency when you expect bursts of Stripe events in a high-traffic store?\n\n#Nextjs #TypeScript #Prisma #Stripe #PostgreSQL"
   }
 ]
