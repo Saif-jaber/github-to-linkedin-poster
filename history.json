@@ -207,5 +207,17 @@
     "status": "drafted",
     "file": "src/app/bag/loading.tsx",
     "post": "We drop a watch's stock count the instant Stripe confirms payment, so the catalog never shows a sold-out piece as available.\n\nChronos & Steel is a demo marketplace for luxury mechanical watches. It needed a way to keep inventory accurate the moment a buyer completes checkout.\n\nWhen Stripe sends a checkout.session.completed webhook we verify the signature, then run a Prisma transaction that reads the current stock with a SELECT FOR UPDATE, decrements the quantity, and writes the new value. The whole flow lives in a Next.js API route written in TypeScript and backed by PostgreSQL, so the row-level lock prevents two payments from reducing the same item below zero.\n\nIn a load test with ten concurrent simulated purchases the stock never went negative and each order was recorded exactly once. The experiment reinforced that database-level locking and idempotent webhook handling are non-negotiable for real-time inventory.\n\nHow do you design webhook idempotency when you expect bursts of Stripe events in a high-traffic store?\n\n#Nextjs #TypeScript #Prisma #Stripe #PostgreSQL"
+  },
+  {
+    "id": "1793091882302",
+    "date": "2026-10-27",
+    "type": "news",
+    "source": "HN",
+    "title": "Show HN: ColliePWA a mobile interface for AI agents in herdr/tmux/zellij",
+    "url": "https://colliepwa.dev/",
+    "postTitle": "Bringing AI Agents to Your Phone via PWAs",
+    "angle": "I'll explore how ColliePWA turns tmux/zellij sessions into a touch-first AI companion, why the PWA model matters for low-latency dev tooling, and what trade-offs we face with offline support.",
+    "status": "drafted",
+    "post": "I saw ColliePWA on Hacker News and it caught me because it turns a tmux or zellij pane into a touch-first AI assistant that lives on your phone. The project ships as a single-binary PWA that talks to a Herdr backend and mirrors the terminal sessions you already have running.\n\nIn practice ColliePWA runs a lightweight service worker that streams the multiplexed output over a WebSocket, then renders each pane as a scrollable card in the browser. Because it is a PWA you can install it, get push notifications when an agent is waiting, and even use it offline for a few minutes of cached output. The model matters: a native app would need a separate build for iOS/Android, while the PWA approach lets you reuse the same codebase and keep latency low by staying on the same origin.\n\nWhat excites me is the possibility of having a low-latency dev-tool that follows you from desk to coffee shop without pulling in a heavyweight IDE. The trade-off is that offline support is limited to what the service worker has already buffered, and the Windows client is still experimental. If the multiplexed stream stalls, you lose the real-time feel that makes the tool useful.\n\nI'm building a few internal CLIs that could benefit from a mobile companion, especially for on-call debugging. I'm curious: would you trust a PWA-based terminal for critical alerts, or do you think the native bridge is still required for reliability?\n\n#webdev #pwa #ai #devtools #tmux #zellij https://colliepwa.dev/"
   }
 ]
