@@ -123,5 +123,17 @@
     "status": "drafted",
     "file": "",
     "post": "When the AI answer streams, the chat window kept snapping back to the top, forcing users to scroll manually.\n\nCortex lets users upload PDFs, DOCX and PPTX and then chat with an AI that answers from those documents. The chat UI needed a way to keep the newest messages in view without losing the user's place.\n\nI added a persistent scroll-to-bottom button by creating a ref to the message container and calling containerRef.current.scrollIntoView({ behavior: \"smooth\", block: \"end\" }) after each incoming delta. The button itself is a small fixed-position element that toggles visibility based on the scroll offset. Because the app runs on Vite, I wired the ref logic into a module-level variable so hot module replacement preserves the reference and the button never disappears after a code change.\n\nIn practice the button stays visible across HMR updates and clicking it instantly brings the latest AI response into view, which eliminated the need for users to manually chase the scroll bar.\n\nHow do you handle scroll positioning when using virtualized lists that recycle DOM nodes?\n\n#React #Vite #Frontend #OpenSource"
+  },
+  {
+    "id": "1793090746614",
+    "date": "2026-10-27",
+    "type": "repo",
+    "repo": "logicCV",
+    "repo_full_name": "Saif-jaber/logicCV",
+    "title": "Mobile Chat Panel Optimization for Seamless CV Building",
+    "angle": "I tackled mobile overflow and suggestion row bugs, redesigning the chat layout to keep AI bubbles readable on small screens.",
+    "status": "drafted",
+    "file": "app/dashboard/resumes/page.tsx",
+    "post": "On a 5-inch phone the AI chat bubbles were clipping, so I rewrote the flex layout to keep every line readable.\n\nlogicCV lets users build ATS-friendly resumes by chatting with an LLM. The chat sits beside a live preview, and the whole UI runs in a Next 16 app built with React 19, TypeScript and Tailwind CSS v4.\n\nThe header uses a responsive flex container: `flex flex-wrap items-end justify-between gap-3`. I added `flex-wrap` and adjusted padding (`p-4 sm:p-6 lg:p-8`) so the suggestion row and AI bubbles stay inside the viewport on small screens. Tailwind's breakpoint utilities let the layout collapse gracefully without extra media queries.\n\nAfter the change the suggestion row no longer overflows and bubbles stay fully visible, even when the user scrolls quickly. It reminded me to test UI components on the smallest breakpoint early in development.\n\nHow do you handle dynamic height content in a flex container on mobile without causing overflow?\n\n#NextJS #React #TypeScript #TailwindCSS"
   }
 ]
