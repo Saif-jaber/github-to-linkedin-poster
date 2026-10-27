@@ -219,5 +219,17 @@
     "angle": "I'll explore how ColliePWA turns tmux/zellij sessions into a touch-first AI companion, why the PWA model matters for low-latency dev tooling, and what trade-offs we face with offline support.",
     "status": "drafted",
     "post": "I saw ColliePWA on Hacker News and it caught me because it turns a tmux or zellij pane into a touch-first AI assistant that lives on your phone. The project ships as a single-binary PWA that talks to a Herdr backend and mirrors the terminal sessions you already have running.\n\nIn practice ColliePWA runs a lightweight service worker that streams the multiplexed output over a WebSocket, then renders each pane as a scrollable card in the browser. Because it is a PWA you can install it, get push notifications when an agent is waiting, and even use it offline for a few minutes of cached output. The model matters: a native app would need a separate build for iOS/Android, while the PWA approach lets you reuse the same codebase and keep latency low by staying on the same origin.\n\nWhat excites me is the possibility of having a low-latency dev-tool that follows you from desk to coffee shop without pulling in a heavyweight IDE. The trade-off is that offline support is limited to what the service worker has already buffered, and the Windows client is still experimental. If the multiplexed stream stalls, you lose the real-time feel that makes the tool useful.\n\nI'm building a few internal CLIs that could benefit from a mobile companion, especially for on-call debugging. I'm curious: would you trust a PWA-based terminal for critical alerts, or do you think the native bridge is still required for reliability?\n\n#webdev #pwa #ai #devtools #tmux #zellij https://colliepwa.dev/"
+  },
+  {
+    "id": "1793091936239",
+    "date": "2026-10-27",
+    "type": "repo",
+    "repo": "CHRONOS-STEEL",
+    "repo_full_name": "Saif-jaber/CHRONOS-STEEL",
+    "title": "Auth Guard for Secure Catalog Access",
+    "angle": "How NextAuth middleware was added to protect catalog routes, ensuring only logged-in users can view and edit seller listings.",
+    "status": "drafted",
+    "file": "src/app/account/page.tsx",
+    "post": "I added a single NextAuth middleware that intercepts every request to /collection and sends unauthenticated users straight to /login, removing the need for per-page guards.\n\nChronos & Steel is a Next.js 16 showcase for a mechanical-watch marketplace where sellers can list pieces. The catalog should only be visible to logged-in buyers and sellers.\n\nIn the middleware I call getToken to read the session cookie, compare it against a whitelist of public routes and, if missing, return a NextResponse.redirect to /login. The same check lives in the account page: it calls currentAccount() and redirects when the session is absent, as shown in the snippet. Using middleware centralises the logic, keeps the App Router pages focused on rendering, and avoids duplicated server-side checks.\n\nThe guard runs before the page code, so a request for /collection now returns a 302 before any Prisma query runs. It taught me that moving auth to the edge can cut unnecessary DB traffic and simplify code paths.\n\nDo you prefer edge-runtime middleware or server-components with getServerSideProps for protecting routes in the new App Router?\n\n#NextJS #TypeScript #Auth #FullStack"
   }
 ]
