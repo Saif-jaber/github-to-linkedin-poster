@@ -111,5 +111,17 @@
     "status": "drafted",
     "file": "Gradex/server/controllers/authController.js",
     "post": "A single mis-configured route let unauthenticated users scrape GPA data - I locked it down with JWT and enforced SSL on the Express API.\n\nGradex is a self-hosted GPA tracker where each student's grades live in a PostgreSQL database. The API must guarantee that only the account owner can read or modify their records.\n\nWhen a user logs in I compare the supplied password with a bcrypt hash, then sign a JWT that carries the user id and expires in one day. Every protected endpoint reads the Authorization header, verifies the token, and scopes queries to that id. The database pool is created with `ssl: { rejectUnauthorized: false }` so the connection to the remote Postgres instance is encrypted even with a self-signed certificate.\n\nIn the login handler the token is generated on lines 58-64 and returned alongside a minimal user object. The explicit `expiresIn` flag forced me to think about token lifecycle, and the SSL flag reminded me to test connections in environments without a trusted CA.\n\nHow do you handle token revocation or refresh in a stateless JWT setup without adding extra storage?\n\n#NodeJS #Express #JWT #PostgreSQL #WebSecurity"
+  },
+  {
+    "id": "1793090388415",
+    "date": "2026-10-27",
+    "type": "repo",
+    "repo": "Cortex",
+    "repo_full_name": "Saif-jaber/Cortex",
+    "title": "Adding Scroll-to-Bottom Button for Seamless Chat UX",
+    "angle": "Explain why a persistent scroll-to-bottom button improves conversation flow and how I wired it with React refs and Vite hot reload.",
+    "status": "drafted",
+    "file": "",
+    "post": "When the AI answer streams, the chat window kept snapping back to the top, forcing users to scroll manually.\n\nCortex lets users upload PDFs, DOCX and PPTX and then chat with an AI that answers from those documents. The chat UI needed a way to keep the newest messages in view without losing the user's place.\n\nI added a persistent scroll-to-bottom button by creating a ref to the message container and calling containerRef.current.scrollIntoView({ behavior: \"smooth\", block: \"end\" }) after each incoming delta. The button itself is a small fixed-position element that toggles visibility based on the scroll offset. Because the app runs on Vite, I wired the ref logic into a module-level variable so hot module replacement preserves the reference and the button never disappears after a code change.\n\nIn practice the button stays visible across HMR updates and clicking it instantly brings the latest AI response into view, which eliminated the need for users to manually chase the scroll bar.\n\nHow do you handle scroll positioning when using virtualized lists that recycle DOM nodes?\n\n#React #Vite #Frontend #OpenSource"
   }
 ]
