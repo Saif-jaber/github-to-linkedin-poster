@@ -406,11 +406,17 @@ async function main() {
       material = await gatherNewsMaterial(idea);
       const raw = await writePost(idea, material, recent);
       result = parsePost(raw, material.files, idea.item.url || '');
+      // For news, skip image
+      result.hasImage = false;
+      result.html = '';
+      result.css = '';
       // For news, maybe add source link in text
       if (idea.item.url && result.post && !result.post.includes(idea.item.url)) {
         result.post = result.post.replace(/\n\n([^\n]+#)/, `\n\nSource: ${idea.item.url}\n\n$1`).replace(/#([A-Za-z0-9_]+)/g, '#$1');
         // rebuild telegram text
         result.telegramText = esc(result.post) + '\n\n----------\nSuggested first comment:\n' + esc(idea.item.url ? `Source: ${idea.item.url}` : 'Thoughts from the field.');
+      } else if (!result.telegramText.includes('Source') && idea.item.url) {
+        result.telegramText = esc(result.post) + '\n\n----------\nSuggested first comment:\n' + esc(`Source: ${idea.item.url}`);
       }
     } catch (e) {
       console.warn('News path failed, falling back to repo:', e.message);
