@@ -147,5 +147,17 @@
     "status": "drafted",
     "file": "src/main.js",
     "post": "After three failed Groq calls, my prompt now forces the model to write LinkedIn posts that sound like my personal brand, not a generic AI.\n\nThe repo is a GitHub Action that runs each morning, picks one of my repos, asks Groq for a post, renders a code-snippet image and pushes both to a Telegram bot.\n\nThe core is the `groq` helper. It builds a request with a system message that encodes my brand voice and a user message containing the repo idea. I set temperature to 0.7 and wrap the call in a three-attempt retry loop, pausing longer after each failure. This simple structure lets me experiment with prompt wording without changing the surrounding workflow.\n\nWith a concise system prompt that forbids phrases like \"Excited to announce\", the generated drafts stopped using those clichés and kept the tone I prefer. It taught me that a well-scoped system prompt can outweigh many downstream filters.\n\nDo you embed brand guidelines directly in the system prompt, or do you prefer to clean up the output afterward?\n\n#JavaScript #LLM #PromptEngineering #GitHubActions"
+  },
+  {
+    "id": "1793090948387",
+    "date": "2026-10-27",
+    "type": "repo",
+    "repo": "CHRONOS-STEEL",
+    "repo_full_name": "Saif-jaber/CHRONOS-STEEL",
+    "title": "Seller Dashboard Analytics: Real-time Sales Insights",
+    "angle": "Show how Prisma aggregates orders, renders charts, and powers the admin view.",
+    "status": "drafted",
+    "file": "src/app/collection/page.tsx",
+    "post": "I turned a raw Prisma order table into a live 30-day revenue chart that updates every time a seller clicks refresh.\n\nThe seller dashboard in Chronos & Steel lets watch makers see daily revenue, unit count and average order value without leaving the admin view. It solves the problem of scattered sales data by pulling everything into one page.\n\nThe page runs a server-side async component that calls Prisma's `groupBy` on the `Order` model, summing `totalAmount` and counting `id` per day. The result is passed to a React chart component that draws a line graph with Tailwind-styled SVG elements. Using Next.js 16 App Router means the data is fetched at request time, so the chart always reflects the latest rows in PostgreSQL.\n\nA single `prisma.order.groupBy` call replaces dozens of separate queries and keeps the response under 10 KB. It reminded me that pushing aggregation into the database is often the cheapest way to get real-time insights.\n\nHow do you handle time-zone boundaries when aggregating daily sales in a multi-region app?\n\n#Nextjs #Prisma #TypeScript #PostgreSQL"
   }
 ]
