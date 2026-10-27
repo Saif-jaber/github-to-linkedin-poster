@@ -2,7 +2,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { esc, parseIdeas, parsePost } from './lib.js';
+import { esc, parseIdeas, parsePost, clean } from './lib.js';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const HISTORY_FILE = path.join(ROOT, 'history.json');
