@@ -15,6 +15,8 @@ const CFG = {
   daysBack: Number(process.env.DAYS_BACK || 60),
   groqModel: process.env.GROQ_MODEL || 'openai/gpt-oss-120b',
   dryRun: process.env.DRY_RUN === '1',
+  newsRatio: Number(process.env.NEWS_RATIO || 0.4), // chance to post news vs repo
+  newsTopics: (process.env.NEWS_TOPICS || 'web development, frontend, backend, AI, machine learning, LLMs, agentic AI, TypeScript, React, Next.js, Rust, AI tooling').split(',').map(s => s.trim()),
 };
 
 const sleep = ms => new Promise(r => setTimeout(r, ms));
@@ -112,6 +114,95 @@ const loadHistory = () => {
 };
 const saveHistory = rows => fs.writeFileSync(HISTORY_FILE, JSON.stringify(rows, null, 2) + '\n');
 
+// ---------- news sources ----------
+async function fetchNews() {
+  const topics = CFG.newsTopics.slice(0, 6).join(' OR ');
+  const query = `(${topics}) (release OR launch OR announcement OR "open source" OR research OR breakthrough) since:2025-01-01`;
+  try {
+    // Try Hacker News search
+    const hn = await fetch(`https://hn.algolia.com/api/v1/search_by_date?query=${encodeURIComponent('web dev ai machine learning')}&tags=story&hitsPerPage=30`);
+    if (hn.ok) {
+      const j = await hn.json();
+      const items = (j.hits || []).filter(h => h.title && h.url).slice(0, 15);
+      if (items.length) return items.map(h => ({ source: 'HN', title: h.title, url: h.url, points: h.points }));
+    }
+  } catch {}
+  try {
+    // Fallback: use Groq to suggest recent news
+    const raw = await groq(
+      'You are a tech news curator. Suggest 5-8 recent (last 7-14 days) noteworthy news items in web development, AI, and machine learning. For each, give: title, source/name, short summary (1-2 sentences), URL if known or "unknown". Prioritize open source releases, model/tool launches, framework updates, or research with practical impact. Output one per line as: TITLE | SOURCE | SUMMARY | URL',
+      `Topics: ${CFG.newsTopics.join(', ')}. Focus on items developers would find interesting to post about on LinkedIn.`
+    );
+    const items = [];
+    for (const line of raw.split('\n')) {
+      if (!line.includes('|')) continue;
+      const p = line.split('|').map(s => s.trim());
+      if (p[0] && p[1]) items.push({ source: p[1], title: p[0], summary: p[2] || '', url: p[3] && p[3] !== 'unknown' ? p[3] : '' });
+    }
+    if (items.length) return items;
+  } catch {}
+  return [];
+}
+
+const norm = s => String(s || '').toLowerCase().replace(/[^a-z0-9]+/g, ' ').trim();
+
+async function pickNewsIdea(history) {
+  const news = await fetchNews();
+  if (!news.length) throw new Error('No news found');
+  const usedTitles = new Set(history.filter(h => h.type === 'news').map(h => norm(h.title)));
+  const usedUrls = new Set(history.filter(h => h.type === 'news' && h.url).map(h => h.url));
+  const seen = new Set();
+  const unique = [];
+  for (const n of news) {
+    const t = norm(n.title);
+    const u = n.url;
+    if (!t) continue;
+    if (usedTitles.has(t)) continue;
+    if (u && usedUrls.has(u)) continue;
+    if (seen.has(t) || (u && seen.has(u))) continue;
+    seen.add(t);
+    if (u) seen.add(u);
+    unique.push(n);
+  }
+  const candidates = unique.slice(0, 12);
+  if (!candidates.length) {
+    // if everything seen, still avoid exact repeats but allow if none left? just pick from fresh batch by different title
+    const fresh = news.filter(n => {
+      const t = norm(n.title);
+      const u = n.url;
+      if (usedTitles.has(t)) return false;
+      if (u && usedUrls.has(u)) return false;
+      return true;
+    });
+    if (!fresh.length) throw new Error('No new news items (all seen in history)');
+    candidates.push(...fresh.slice(0, 12));
+  }
+  const pool = candidates.slice(0, 12);
+  const picked = pool.slice(0, 4);
+  
+  let prompt = '';
+  for (let i = 0; i < picked.length; i++) {
+    const n = picked[i];
+    prompt += `NEWS ${i + 1}:\nTitle: ${n.title}\nSource: ${n.source}\nSummary: ${n.summary || ''}\nURL: ${n.url || 'none'}\n\n`;
+  }
+  
+  const raw = await groq(
+    'You plan LinkedIn post ideas about tech news for a software engineer interested in web dev, AI, and ML. For each news item, propose exactly ONE post idea: explain why it matters, give a technical take/opinion, and make it engaging for developers. Never just regurgitate headlines. Pick different angles. Output exactly one line per item as: N | news | idea title (max 12 words) | angle in one sentence',
+    prompt
+  );
+  const ideas = [];
+  for (const line of String(raw || '').replace(/\r/g, '').split('\n')) {
+    if (!line.includes('|')) continue;
+    const p = line.split('|').map(s => s.trim());
+    const n = parseInt(p[0].replace(/\D/g, ''), 10) - 1;
+    const item = picked[n];
+    if (!item || !p[2]) continue;
+    ideas.push({ type: 'news', item, title: clean(p[2]), angle: clean(p[3] || '') });
+  }
+  if (!ideas.length) throw new Error('No news ideas generated');
+  return ideas[0];
+}
+
 // ---------- step 1: pick an idea ----------
 async function pickIdea(history) {
   const repos = await ghJson(`https://api.github.com/users/${CFG.githubUser}/repos?per_page=100&sort=pushed`);
@@ -155,7 +246,25 @@ async function pickIdea(history) {
   return ideas[0];
 }
 
-// ---------- step 2: gather material from the chosen repo ----------
+// ---------- step 2: gather material ----------
+async function gatherNewsMaterial(idea) {
+  const item = idea.item;
+  let context = `News Item: ${item.title}\nSource: ${item.source}\nURL: ${item.url || 'none'}\nSummary: ${item.summary || ''}\n\n`;
+  // Try to fetch the page if URL exists
+  if (item.url && item.url.startsWith('http')) {
+    try {
+      const r = await fetch(item.url, { headers: { 'User-Agent': 'github-linkedin-poster' } });
+      if (r.ok) {
+        const html = await r.text();
+        // crude extract
+        const text = html.replace(/<script[\s\S]*?<\/script>/gi, '').replace(/<style[\s\S]*?<\/style>/gi, '').replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').slice(0, 1500);
+        context += `Page excerpt (truncated): ${text}\n`;
+      }
+    } catch {}
+  }
+  return { context, files: {} };
+}
+
 async function gatherMaterial(idea) {
   const full = idea.repo.full_name;
   let readme = '';
@@ -209,10 +318,41 @@ async function writePost(idea, material, recentOpenings) {
   try { voice = fs.readFileSync(VOICE_FILE, 'utf8').trim(); } catch {}
   if (/^Paste 3-5 of your own/i.test(voice)) voice = '';
 
+  if (idea.type === 'news') {
+    const system = `You write LinkedIn posts for a software developer sharing tech news/opinions. Write in first person as the developer. Sound like a real engineer commenting on something interesting, not a marketer.
+ 
+GOAL: share something worth reading in web dev/AI/ML and start a discussion.
+ 
+STRUCTURE:
+1. Hook (first 1-2 lines): mention the news/tool/release and why it caught your attention.
+2. Context: what is it and why it matters for developers.
+3. Take: your technical opinion/take - what excites you or concerns you, tradeoffs.
+4. Relevance: how it relates to what you care about or might affect builders.
+5. Question to others + hashtags at the end.
+
+WRITING RULES:
+- No emojis. No bullets, arrows, labels. Full sentences/paragraphs.
+- Plain ASCII punctuation only. No em/en dashes, curly quotes, ellipsis.
+- Avoid AI-sounding phrases, buzzwords (passionate, revolutionary), consultant jargon.
+- Show opinion, don't just summarize.
+- Under 1100 chars. Short paragraphs.
+- Include source if URL provided.
+
+OUTPUT FORMAT exactly:
+FILE: none
+LINES: 0-0
+POST:
+<the post text>
+${voice ? `\nVOICE EXAMPLES (match this tone):\n${voice}` : ''}`;
+
+    const user = `Write the post for this tech news.\n\nIDEA: ${idea.title}\nANGLE: ${idea.angle}\n\nDo NOT reuse openings of these recent posts: ${recentOpenings || 'none'}\n\n${material.context}`;
+    return groq(system, user);
+  }
+
   const system = `You write LinkedIn posts for a software developer who wants to be noticed by recruiters and hiring managers. Write in first person as the developer. Sound like a real engineer explaining real work to peers, not a marketer and not an AI assistant.
-
+ 
 GOAL: make a recruiter stop scrolling, understand the developer's skills within 10 seconds, and want to open the GitHub link.
-
+ 
 STRUCTURE:
 1. Hook (first 1-2 lines, under 180 characters): a specific problem, a surprising result or a sharp technical insight taken from the repo. It must stand alone, because LinkedIn cuts the post after about two lines. Never open with 'Excited to announce', 'Thrilled to share', 'Happy to share', 'As a developer', or a vague rhetorical question.
 2. Context: 1-2 short sentences on what the project is, who it helps and the problem it solves.
@@ -220,7 +360,7 @@ STRUCTURE:
 4. Proof and takeaway: 1-2 sentences with a specific, verifiable detail (a constraint, a design choice, a behaviour that exists in the code) and what it taught you.
 5. One genuine question to other developers, tied to the specific technical choice, not a generic thought-leadership question.
 6. Last line: 3-4 relevant hashtags.
-
+ 
 WRITING RULES:
 - No emojis.
 - No bullets, no numbered lists, no arrow markers (->), no label-style lines like 'The problem:' or 'The result:'. Write full sentences and paragraphs only.
@@ -235,9 +375,9 @@ WRITING RULES:
 - Never invent features, numbers, users, metrics or results. Use only what is in the repo info. If no metric is given, describe the behaviour instead of inventing a number.
 - Show, do not tell. Replace adjectives with concrete actions and choices.
 - Under 1100 characters. Short paragraphs separated by blank lines.
-
+ 
 CODE SNIPPET: from the numbered SOURCE FILES, choose the most interesting self-contained block of 8 to 16 lines (a core function, a clever pattern, a clean algorithm) that fits the idea. Prefer lines under 60 characters wide. Never choose imports, config, or boilerplate. Use the exact file path and line numbers shown. If no source files are provided, use FILE: none and LINES: 0-0.
-
+ 
 OUTPUT FORMAT, exactly, with nothing before FILE:
 FILE: <path>
 LINES: <start>-<end>
@@ -254,13 +394,40 @@ async function main() {
   const history = loadHistory();
   console.log(`History rows: ${history.length}`);
 
-  const idea = await pickIdea(history);
-  console.log(`Idea: [${idea.repo.name}] ${idea.title}`);
-
-  const material = await gatherMaterial(idea);
+  // Decide: news or repo
+  const doNews = Math.random() < CFG.newsRatio;
+  let idea, material, result;
   const recent = history.slice(-5).map(r => String(r.post || '').split('\n')[0]).filter(Boolean).join(' || ');
-  const raw = await writePost(idea, material, recent);
-  const result = parsePost(raw, material.files, idea.repo.url);
+
+  if (doNews) {
+    try {
+      idea = await pickNewsIdea(history);
+      console.log(`Idea (NEWS): ${idea.item.title} -> ${idea.title}`);
+      material = await gatherNewsMaterial(idea);
+      const raw = await writePost(idea, material, recent);
+      result = parsePost(raw, material.files, idea.item.url || '');
+      // For news, maybe add source link in text
+      if (idea.item.url && result.post && !result.post.includes(idea.item.url)) {
+        result.post = result.post.replace(/\n\n([^\n]+#)/, `\n\nSource: ${idea.item.url}\n\n$1`).replace(/#([A-Za-z0-9_]+)/g, '#$1');
+        // rebuild telegram text
+        result.telegramText = esc(result.post) + '\n\n----------\nSuggested first comment:\n' + esc(idea.item.url ? `Source: ${idea.item.url}` : 'Thoughts from the field.');
+      }
+    } catch (e) {
+      console.warn('News path failed, falling back to repo:', e.message);
+      idea = await pickIdea(history);
+      console.log(`Idea: [${idea.repo.name}] ${idea.title}`);
+      material = await gatherMaterial(idea);
+      const raw = await writePost(idea, material, recent);
+      result = parsePost(raw, material.files, idea.repo.url);
+    }
+  } else {
+    idea = await pickIdea(history);
+    console.log(`Idea: [${idea.repo.name}] ${idea.title}`);
+    material = await gatherMaterial(idea);
+    const raw = await writePost(idea, material, recent);
+    result = parsePost(raw, material.files, idea.repo.url);
+  }
+
   console.log(`Post length: ${result.post.length} chars | code image: ${result.hasImage}`);
 
   if (CFG.dryRun) {
@@ -282,17 +449,33 @@ async function main() {
   await tgText(result.telegramText);
   console.log('Post text sent.');
 
-  history.push({
-    id: String(Date.now()),
-    date: new Date().toISOString().slice(0, 10),
-    repo: idea.repo.name,
-    repo_full_name: idea.repo.full_name,
-    title: idea.title,
-    angle: idea.angle,
-    status: 'drafted',
-    file: result.file,
-    post: result.post,
-  });
+  if (idea.type === 'news') {
+    history.push({
+      id: String(Date.now()),
+      date: new Date().toISOString().slice(0, 10),
+      type: 'news',
+      source: idea.item.source,
+      title: idea.item.title,
+      url: idea.item.url,
+      postTitle: idea.title,
+      angle: idea.angle,
+      status: 'drafted',
+      post: result.post,
+    });
+  } else {
+    history.push({
+      id: String(Date.now()),
+      date: new Date().toISOString().slice(0, 10),
+      type: 'repo',
+      repo: idea.repo.name,
+      repo_full_name: idea.repo.full_name,
+      title: idea.title,
+      angle: idea.angle,
+      status: 'drafted',
+      file: result.file,
+      post: result.post,
+    });
+  }
   saveHistory(history);
   console.log('History saved.');
 }

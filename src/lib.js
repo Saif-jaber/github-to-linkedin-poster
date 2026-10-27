@@ -7,7 +7,7 @@ const ascii = s => String(s)
   .replace(/[\u201C\u201D\u201E\u201F]/g, '"')
   .replace(/\u2026/g, '...')
   .replace(/[\u00A0\u2007\u2009\u200A\u202F]/g, ' ');
-const clean = s => ascii(dashes(s));
+export const clean = s => ascii(dashes(s));
 
 // "N | repo name | idea title | angle" lines -> idea objects
 export function parseIdeas(raw, repos) {
